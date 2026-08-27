@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import AgentGuardToggle from './components/AgentGuardToggle';
 import SuccessRateChart from './components/SuccessRateChart';
+import StoryTimeline from './components/StoryTimeline';
 import './index.css';
 
-// Hardcoded metrics representing report.json output
 const MOCK_DATA = {
   overall_metrics: {
     precision: 0.7750,
@@ -68,6 +68,10 @@ function App() {
           data={MOCK_DATA.attack_success_by_round} 
           agentGuardOn={agentGuardOn} 
         />
+        
+        {/* NEW: Story Mode UI */}
+        <StoryTimeline agentGuardOn={agentGuardOn} />
+
       </main>
     </div>
   );
