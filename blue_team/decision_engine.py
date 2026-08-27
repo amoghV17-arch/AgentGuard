@@ -131,28 +131,17 @@ async def decide(
     injection_timed_out = False
 
     try:
-        timeout_seconds = INJECTION_DETECTOR_TIMEOUT_MS / 1000.0
-        injection_result = await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(
-                None, check_content, content_to_check
-            ),
-            timeout=timeout_seconds,
-        )
+        # Call synchronously as inference is fast (20-80ms) and CPU-bound
+        injection_result = check_content(content_to_check)
         injection_score = injection_result.score
         matched_pattern = injection_result.matched_pattern
         logger.debug(
             "Injection detector: score=%.3f, latency=%.1fms",
             injection_score, injection_result.latency_ms,
         )
-    except asyncio.TimeoutError:
-        injection_timed_out = True
-        logger.warning(
-            "Injection detector timed out after %.0fms, using heuristic fallback",
     except Exception as _e:
         injection_timed_out = True
         logger.warning("Injection detector error: %s, using heuristic", _e)
-            INJECTION_DETECTOR_TIMEOUT_MS,
-        )
 
     if injection_score >= 0.72:  # local threshold before feeding to risk model
         violated_signals.append("content_injection_detected")

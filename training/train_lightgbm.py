@@ -133,25 +133,20 @@ def train_and_export() -> dict:
     """
     X, y, texts = load_training_data()
 
-    # Hold out 20% as the fixed test set — never touches the feedback loop
-    X_train, X_test, y_train, y_test, texts_train, texts_test = train_test_split(
-        X, y, texts, test_size=0.2, random_state=42, stratify=y
-    )
-
-    # Save the held-out test set for evaluate.py
-    with open(_HELD_OUT_PATH, "wb") as f:
-        pickle.dump({
-            "X_test": X_test,
-            "y_test": y_test,
-            "texts_test": texts_test,
-            "feature_names": [
-                "content_risk_score", "mandate_soft_score", "amount_normalized",
-                "is_approved_merchant", "is_approved_category",
-                "purpose_code_mismatch", "description_length",
-                "has_html_comment", "has_system_phrase", "has_urgency_phrase",
-            ],
-        }, f)
-    logger.info("Held-out test set saved to %s (%d examples)", _HELD_OUT_PATH, len(y_test))
+    # Train on 100% of seed data, evaluate on the pre-generated held-out set
+    X_train = X
+    y_train = y
+    
+    if not _HELD_OUT_PATH.exists():
+        logger.warning("No pre-generated eval set found! Run generate_eval_set.py first.")
+        return {}
+        
+    with open(_HELD_OUT_PATH, "rb") as f:
+        eval_data = pickle.load(f)
+        X_test = eval_data["X_test"]
+        y_test = eval_data["y_test"]
+        texts_test = eval_data["texts_test"]
+    logger.info("Loaded pre-generated eval set from %s (%d examples)", _HELD_OUT_PATH, len(y_test))
 
     # Train with 5-fold cross-validation to get a stable accuracy estimate
     params = {
@@ -199,10 +194,10 @@ def train_and_export() -> dict:
     # Export to ONNX
     onnx_path = _MODEL_DIR / "risk_model.onnx"
     try:
-        from skl2onnx import convert_sklearn
-        from skl2onnx.common.data_types import FloatTensorType
+        from onnxmltools import convert_lightgbm
+        from onnxmltools.convert.common.data_types import FloatTensorType
         initial_type = [("float_input", FloatTensorType([None, X_train.shape[1]]))]
-        onnx_model = convert_sklearn(final_model, initial_types=initial_type)
+        onnx_model = convert_lightgbm(final_model, initial_types=initial_type)
         with open(onnx_path, "wb") as f:
             f.write(onnx_model.SerializeToString())
         logger.info("Model exported to ONNX: %s", onnx_path)
