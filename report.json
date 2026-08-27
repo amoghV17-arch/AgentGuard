@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-27T11:06:33.544270+00:00",
+  "test_set_size": 13,
+  "precision": 0.8571,
+  "recall": 1.0,
+  "f1_score": 0.9231,
+  "roc_auc": 1.0,
+  "false_positive_rate_overall": 0.1429,
+  "false_positive_rate_hard_legit": 0.0,
+  "hard_legit_sample_size": 1,
+  "avg_latency_ms": 1579.6,
+  "p99_latency_ms": 5128.0,
+  "latency_budget_met": false,
+  "statistical_warning": "Sample size 13 is too small to support strict statistical claims. Treat these as directional metrics for a proof-of-concept prototype.",
+  "attack_success_by_round": [
+    {
+      "round": 1,
+      "total_attacks": 20,
+      "attacks_evaded": 8,
+      "attack_success_rate": 0.4
+    },
+    {
+      "round": 2,
+      "total_attacks": 20,
+      "attacks_evaded": 4,
+      "attack_success_rate": 0.2
+    },
+    {
+      "round": 3,
+      "total_attacks": 20,
+      "attacks_evaded": 1,
+      "attack_success_rate": 0.05
+    }
+  ]
+}
