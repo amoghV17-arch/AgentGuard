@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AgentGuardToggle from './components/AgentGuardToggle';
 import SuccessRateChart from './components/SuccessRateChart';
-import StoryTimeline from './components/StoryTimeline';
+import PipelineVisualization from './components/PipelineVisualization';
 import './index.css';
 
 const MOCK_DATA = {
@@ -69,8 +69,8 @@ function App() {
           agentGuardOn={agentGuardOn} 
         />
         
-        {/* NEW: Story Mode UI */}
-        <StoryTimeline agentGuardOn={agentGuardOn} />
+        {/* NEW: Pipeline Visualization UI */}
+        <PipelineVisualization />
 
       </main>
     </div>
